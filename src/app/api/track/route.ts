@@ -15,8 +15,8 @@ export async function POST(req: NextRequest) {
         }
 
         // Get IP address
-        let ip = req.headers.get('x-forwarded-for') || (req as any).ip || '127.0.0.1';
-        if (ip.includes(',')) {
+        let ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || (req as any).ip || '127.0.0.1';
+        if (ip && ip.includes(',')) {
             ip = ip.split(',')[0].trim();
         }
 
