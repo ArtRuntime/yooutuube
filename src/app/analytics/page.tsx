@@ -152,8 +152,13 @@ export default function AnalyticsPage() {
                                         </div>
                                     )}
 
-                                    <div className="pt-3 border-t border-white/5 text-xs text-gray-500 truncate" title={log.userAgent}>
-                                        {log.userAgent}
+                                    <div className="pt-3 border-t border-white/5 space-y-1">
+                                        <div className="text-xs text-gray-400 font-mono">
+                                            IP: {log.ip}
+                                        </div>
+                                        <div className="text-xs text-gray-500 truncate" title={log.userAgent}>
+                                            {log.userAgent}
+                                        </div>
                                     </div>
                                 </div>
                             </div>

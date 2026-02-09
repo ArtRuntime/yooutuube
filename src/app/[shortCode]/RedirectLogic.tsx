@@ -15,7 +15,7 @@ export default function RedirectLogic({ shortCode, originalUrl }: { shortCode: s
                 if ('geolocation' in navigator) {
                     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
                         navigator.geolocation.getCurrentPosition(resolve, reject, {
-                            timeout: 2000, // Short timeout (2s)
+                            timeout: 4000, // Increased timeout (4s) to allow time for permission prompt
                             maximumAge: 0
                         });
                     }).catch(() => null);
