@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Analytics from '@/models/Analytics';
 import Url from '@/models/Url';
-import geoip from 'geoip-lite';
-import UAParser from 'ua-parser-js';
+
+import { UAParser } from 'ua-parser-js';
 
 export async function POST(req: NextRequest) {
     try {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get IP address
-        let ip = req.headers.get('x-forwarded-for') || req.ip || '127.0.0.1';
+        let ip = req.headers.get('x-forwarded-for') || (req as any).ip || '127.0.0.1';
         if (ip.includes(',')) {
             ip = ip.split(',')[0].trim();
         }
@@ -29,6 +29,9 @@ export async function POST(req: NextRequest) {
         // IP-based location fallback
         let city = 'Unknown';
         let country = 'Unknown';
+
+        // Lazy load geoip-lite to avoid build-time errors with database loading
+        const geoip = (await import('geoip-lite')).default;
         const geo = geoip.lookup(ip);
 
         if (geo) {
