@@ -48,6 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: ogData?.title || 'Shortened URL',
             description: ogData?.description || 'Click to visit this link.',
             images: ogData?.image ? [ogData.image] : [],
+            site: '@youtube', // Hint to platforms
         },
     };
 }
