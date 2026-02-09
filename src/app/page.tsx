@@ -1,5 +1,6 @@
+import Link from 'next/link';
 import UrlForm from '@/components/UrlForm';
-import { Share2, Zap, Globe } from 'lucide-react';
+import { Share2, Zap, Globe, BarChart3 } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -10,6 +11,14 @@ export default function Home() {
       <div className="absolute -bottom-8 left-20 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
 
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex mb-12">
+        <div className="hidden lg:flex"></div>
+        <Link
+          href="/analytics"
+          className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/5 transition-all duration-300 backdrop-blur-sm"
+        >
+          <BarChart3 className="w-4 h-4 text-purple-400" />
+          <span>Check Analytics</span>
+        </Link>
       </div>
 
       <div className="relative z-10 flex flex-col items-center w-full max-w-3xl text-center mb-12">
