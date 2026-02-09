@@ -1,0 +1,68 @@
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '@/lib/db';
+import Analytics from '@/models/Analytics';
+import Url from '@/models/Url';
+import geoip from 'geoip-lite';
+import UAParser from 'ua-parser-js';
+
+export async function POST(req: NextRequest) {
+    try {
+        await dbConnect();
+        const { shortCode, latitude, longitude } = await req.json();
+
+        if (!shortCode) {
+            return NextResponse.json({ error: 'Short code is required' }, { status: 400 });
+        }
+
+        // Get IP address
+        let ip = req.headers.get('x-forwarded-for') || req.ip || '127.0.0.1';
+        if (ip.includes(',')) {
+            ip = ip.split(',')[0].trim();
+        }
+
+        // Get User Agent
+        const userAgentString = req.headers.get('user-agent') || '';
+        const parser = new UAParser(userAgentString);
+        const userAgentBuffer = parser.getResult();
+        const userAgent = `${userAgentBuffer.browser.name || ''} ${userAgentBuffer.browser.version || ''} on ${userAgentBuffer.os.name || ''} ${userAgentBuffer.os.version || ''}`.trim();
+
+        // IP-based location fallback
+        let city = 'Unknown';
+        let country = 'Unknown';
+        const geo = geoip.lookup(ip);
+
+        if (geo) {
+            city = geo.city || 'Unknown';
+            country = geo.country || 'Unknown';
+        }
+
+        // Capture precise location if provided
+        let analyticsData: any = {
+            shortCode,
+            ip,
+            userAgent: userAgent || userAgentString,
+            city,
+            country,
+            timestamp: new Date(),
+        };
+
+        if (latitude && longitude) {
+            analyticsData.latitude = latitude;
+            analyticsData.longitude = longitude;
+            // Could also reverse geocode here if needed, but city/country from IP is usually "good enough" for general stats, 
+            // and lat/long is for map plotting.
+        }
+
+        // Save analytics
+        await Analytics.create(analyticsData);
+
+        // Update click count on Url model
+        await Url.updateOne({ shortCode }, { $inc: { clicks: 1 } });
+
+        return NextResponse.json({ success: true });
+
+    } catch (error) {
+        console.error('Error in /api/track:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
