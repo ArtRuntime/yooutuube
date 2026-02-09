@@ -49,7 +49,7 @@ export default function UrlForm() {
 
     return (
         <div className="w-full max-w-xl mx-auto space-y-8 z-20 relative">
-            <form onSubmit={handleSubmit} className="relative group">
+            <form onSubmit={handleSubmit} className="relative group" autoComplete="off">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
                 <div className="relative flex items-center bg-[#0a0a0a] rounded-lg p-1">
                     <input
@@ -58,6 +58,7 @@ export default function UrlForm() {
                         onChange={(e) => setUrl(e.target.value)}
                         placeholder="Paste your link here (e.g. YouTube, Article)..."
                         required
+                        autoComplete="off"
                         className="flex-1 bg-transparent text-white p-4 outline-none placeholder-gray-500"
                     />
                     <button

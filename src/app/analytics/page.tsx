@@ -75,12 +75,14 @@ export default function AnalyticsPage() {
                 </h1>
                 <p className="text-gray-400 mb-8">Enter your short URL or code to view real-time statistics.</p>
 
-                <form onSubmit={handleSearch} className="max-w-xl mx-auto relative group">
+                <form onSubmit={handleSearch} className="max-w-xl mx-auto relative group" autoComplete="off">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
                     <div className="relative flex items-center bg-black/50 backdrop-blur-xl rounded-lg border border-white/10 p-1">
                         <Search className="w-5 h-5 text-gray-400 ml-3" />
                         <input
                             type="text"
+                            name="shortUrl"
+                            autoComplete="off"
                             value={inputCode}
                             onChange={(e) => setInputCode(e.target.value)}
                             placeholder="Paste shortened URL (e.g., yooutuube.vercel.app/XyZ123)"
