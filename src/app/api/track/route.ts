@@ -27,16 +27,25 @@ export async function POST(req: NextRequest) {
         const userAgent = `${userAgentBuffer.browser.name || ''} ${userAgentBuffer.browser.version || ''} on ${userAgentBuffer.os.name || ''} ${userAgentBuffer.os.version || ''}`.trim();
 
         // IP-based location fallback
-        let city = 'Unknown';
-        let country = 'Unknown';
+        let city = req.headers.get('x-vercel-ip-city') || 'Unknown';
+        let country = req.headers.get('x-vercel-ip-country') || 'Unknown';
 
-        // Lazy load geoip-lite to avoid build-time errors with database loading
-        const geoip = (await import('geoip-lite')).default;
-        const geo = geoip.lookup(ip);
+        // Only try geoip-lite if headers are missing (e.g. local dev) and we haven't found location yet
+        if (city === 'Unknown' || country === 'Unknown') {
+            try {
+                // Lazy load geoip-lite to avoid build-time errors
+                // This might still fail on Vercel runtime if files aren't found, so we catch it.
+                const geoip = (await import('geoip-lite')).default;
+                const geo = geoip.lookup(ip);
 
-        if (geo) {
-            city = geo.city || 'Unknown';
-            country = geo.country || 'Unknown';
+                if (geo) {
+                    city = city === 'Unknown' ? (geo.city || 'Unknown') : city;
+                    country = country === 'Unknown' ? (geo.country || 'Unknown') : country;
+                }
+            } catch (e) {
+                console.warn('GeoIP lookup failed (running on serverless?):', e);
+                // Fail silently and use default/headers
+            }
         }
 
         // Capture precise location if provided
