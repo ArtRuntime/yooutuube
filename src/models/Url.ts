@@ -7,6 +7,7 @@ export interface IUrl extends Document {
         title?: string;
         description?: string;
         image?: string;
+        siteName?: string;
     };
     createdAt: Date;
     clicks: number;
@@ -19,6 +20,7 @@ const UrlSchema: Schema = new Schema({
         title: String,
         description: String,
         image: String,
+        siteName: String,
     },
     createdAt: { type: Date, default: Date.now },
     clicks: { type: Number, default: 0 },

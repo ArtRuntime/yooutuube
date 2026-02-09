@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
             title: '',
             description: '',
             image: '',
+            siteName: '',
         };
 
         try {
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
                     title: result.ogTitle || '',
                     description: result.ogDescription || '',
                     image: (result.ogImage && result.ogImage.length > 0) ? result.ogImage[0].url : '',
+                    siteName: result.ogSiteName || '',
                 };
             }
         } catch (error) {

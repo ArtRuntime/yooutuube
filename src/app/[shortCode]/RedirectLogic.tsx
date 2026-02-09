@@ -1,29 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function RedirectLogic({ shortCode, originalUrl }: { shortCode: string, originalUrl: string }) {
     const router = useRouter();
-    const [status, setStatus] = useState('Initializing...');
 
     useEffect(() => {
         const trackAndRedirect = async () => {
-            setStatus('Requesting location access for better analytics...');
-
             let locationData = {};
 
+            // Attempt geolocation efficiently with a shorter timeout
             try {
                 if ('geolocation' in navigator) {
                     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
                         navigator.geolocation.getCurrentPosition(resolve, reject, {
-                            timeout: 5000,
+                            timeout: 2000, // Short timeout (2s)
                             maximumAge: 0
                         });
-                    }).catch((err) => {
-                        console.log("Geolocation denied or timed out:", err.message);
-                        return null;
-                    });
+                    }).catch(() => null);
 
                     if (position) {
                         locationData = {
@@ -33,14 +28,12 @@ export default function RedirectLogic({ shortCode, originalUrl }: { shortCode: s
                     }
                 }
             } catch (e) {
-                console.error("Error with geolocation:", e);
+                // Ignore errors
             }
 
-            setStatus('Redirecting...');
-
-            // Send tracking data
+            // Send tracking data using keepalive so it survives redirection
             try {
-                await fetch('/api/track', {
+                fetch('/api/track', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -49,26 +42,21 @@ export default function RedirectLogic({ shortCode, originalUrl }: { shortCode: s
                         shortCode,
                         ...locationData,
                     }),
-                });
+                    keepalive: true,
+                }).catch(() => { });
             } catch (e) {
-                console.error("Tracking failed", e);
+                // Ignore
             }
 
-            // Redirect
+            // Immediate Redirect
             window.location.href = originalUrl;
         };
 
         trackAndRedirect();
     }, [shortCode, originalUrl, router]);
 
+    // Return invisible black screen to prevent white flash
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-            <div className="text-center space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-                <h2 className="text-xl font-semibold mb-2">You are being redirected</h2>
-                <p className="text-gray-400">{status}</p>
-                <p className="text-sm text-gray-500 mt-4">Heading to: {originalUrl}</p>
-            </div>
-        </div>
+        <div className="min-h-screen bg-[#0f1014]" />
     );
 }

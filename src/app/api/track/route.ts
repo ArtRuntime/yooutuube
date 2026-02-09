@@ -52,8 +52,8 @@ export async function POST(req: NextRequest) {
         if (latitude && longitude) {
             analyticsData.latitude = latitude;
             analyticsData.longitude = longitude;
-            // Could also reverse geocode here if needed, but city/country from IP is usually "good enough" for general stats, 
-            // and lat/long is for map plotting.
+
+            console.log(`📍 Precise Location Captured: https://www.google.com/maps?q=${latitude},${longitude}`);
         }
 
         // Save analytics

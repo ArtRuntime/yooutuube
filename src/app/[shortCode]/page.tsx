@@ -41,6 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title: ogData?.title || 'Shortened URL',
             description: ogData?.description || 'Click to visit this link.',
             images: ogData?.image ? [{ url: ogData.image }] : [],
+            siteName: ogData?.siteName,
         },
         twitter: {
             card: 'summary_large_image',
