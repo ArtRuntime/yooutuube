@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Loader2, MapPin, Globe, Clock, ExternalLink } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Loader2, MapPin, Globe, Clock, ExternalLink, Search, ArrowRight } from 'lucide-react';
 
 interface Log {
     _id: string;
@@ -17,45 +17,101 @@ interface Log {
 
 export default function AnalyticsPage() {
     const [logs, setLogs] = useState<Log[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [inputCode, setInputCode] = useState('');
+    const [activeCode, setActiveCode] = useState('');
+    const [error, setError] = useState('');
+
+    const fetchLogs = async (code: string) => {
+        if (!code) return;
+        setLoading(true);
+        setError('');
+        try {
+            const res = await fetch(`/api/analytics?code=${code}`);
+            const data = await res.json();
+            setLogs(data);
+            if (data.length === 0) {
+                setError('No data found for this code yet.');
+            }
+        } catch (error) {
+            console.error('Failed to fetch analytics', error);
+            setError('Failed to fetch data.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!inputCode.trim()) return;
+
+        // Extract code from URL if full URL is pasted
+        let code = inputCode.trim();
+        try {
+            const url = new URL(code);
+            const path = url.pathname.split('/').filter(Boolean).pop();
+            if (path) code = path;
+        } catch (e) {
+            // Not a URL, treat as code
+        }
+
+        setActiveCode(code);
+        fetchLogs(code);
+    };
 
     useEffect(() => {
-        const fetchLogs = async () => {
-            try {
-                const res = await fetch('/api/analytics');
-                const data = await res.json();
-                setLogs(data);
-            } catch (error) {
-                console.error('Failed to fetch analytics', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        if (!activeCode) return;
 
-        fetchLogs();
-        // Auto-refresh every 5 seconds
-        const interval = setInterval(fetchLogs, 5000);
+        // Auto-refresh every 5 seconds if a code is active
+        const interval = setInterval(() => fetchLogs(activeCode), 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [activeCode]);
 
     return (
         <main className="min-h-screen p-6 sm:p-12 max-w-7xl mx-auto">
-            <div className="mb-12">
+            <div className="mb-12 text-center">
                 <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-4">
-                    Live Analytics
+                    Analytics Dashboard
                 </h1>
-                <p className="text-gray-400">Real-time click tracking and location data.</p>
+                <p className="text-gray-400 mb-8">Enter your short URL or code to view real-time statistics.</p>
+
+                <form onSubmit={handleSearch} className="max-w-xl mx-auto relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div className="relative flex items-center bg-black/50 backdrop-blur-xl rounded-lg border border-white/10 p-1">
+                        <Search className="w-5 h-5 text-gray-400 ml-3" />
+                        <input
+                            type="text"
+                            value={inputCode}
+                            onChange={(e) => setInputCode(e.target.value)}
+                            placeholder="Paste shortened URL (e.g., yooutuube.vercel.app/XyZ123)"
+                            className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-gray-500 py-3 px-4 outline-none"
+                        />
+                        <button
+                            type="submit"
+                            className="bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-md transition-colors mr-1"
+                        >
+                            <ArrowRight className="w-5 h-5" />
+                        </button>
+                    </div>
+                </form>
             </div>
 
-            {loading ? (
+            {loading && logs.length === 0 ? (
                 <div className="flex justify-center p-12">
                     <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
                 </div>
             ) : (
                 <div className="space-y-4">
+                    {activeCode && !loading && logs.length === 0 && (
+                        <div className="text-center text-gray-500 p-12 glass rounded-xl border border-white/5">
+                            <p className="text-lg mb-2">{error || 'No clicks recorded yet.'}</p>
+                            <p className="text-sm">Share your link to start tracking!</p>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {logs.map((log) => (
-                            <div key={log._id} className="glass p-6 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                            <div key={log._id} className="glass p-6 rounded-xl border border-white/5 hover:border-white/10 transition-colors animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="flex justify-between items-start mb-4">
                                     <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded text-xs font-mono">
                                         /{log.shortCode}
@@ -90,6 +146,12 @@ export default function AnalyticsPage() {
                                         </div>
                                     )}
 
+                                    {log.latitude && log.longitude && (
+                                        <div className="text-xs font-mono text-gray-500 bg-black/20 p-1.5 rounded border border-white/5 break-all">
+                                            {log.latitude}, {log.longitude}
+                                        </div>
+                                    )}
+
                                     <div className="pt-3 border-t border-white/5 text-xs text-gray-500 truncate" title={log.userAgent}>
                                         {log.userAgent}
                                     </div>
@@ -97,12 +159,6 @@ export default function AnalyticsPage() {
                             </div>
                         ))}
                     </div>
-
-                    {logs.length === 0 && (
-                        <div className="text-center text-gray-500 p-12">
-                            No clicks recorded yet.
-                        </div>
-                    )}
                 </div>
             )}
         </main>
