@@ -1,6 +1,7 @@
 import { IDatabaseAdapter, IUrl, IAnalytics } from './types';
 import { MongoAdapter } from './mongo-adapter';
 import { TursoAdapter } from './turso-adapter';
+import { NeonAdapter } from './neon-adapter';
 
 class DatabaseService implements IDatabaseAdapter {
     private adapters: IDatabaseAdapter[] = [];
@@ -42,6 +43,19 @@ class DatabaseService implements IDatabaseAdapter {
                 this.adapters.push(adapter);
             } catch (error) {
                 console.error(`Failed to connect to Turso:`, error);
+            }
+        }
+
+        // Initialize Neon Adapter
+        const neonUrl = process.env.NEON_DATABASE_URL;
+        if (neonUrl) {
+            try {
+                const adapter = new NeonAdapter(neonUrl);
+                // Connect/Init tables
+                await adapter.connect();
+                this.adapters.push(adapter);
+            } catch (error) {
+                console.error(`Failed to connect to Neon:`, error);
             }
         }
 
