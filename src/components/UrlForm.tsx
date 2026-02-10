@@ -6,7 +6,7 @@ import { Copy, ArrowRight, Loader2, Check } from 'lucide-react';
 export default function UrlForm() {
     const [url, setUrl] = useState('');
     const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState<{ shortCode: string; originalUrl: string; ogData: any } | null>(null);
+    const [result, setResult] = useState<{ shortCode: string; originalUrl: string; ogData: { title?: string; description?: string; image?: string; favicon?: string } } | null>(null);
     const [copied, setCopied] = useState(false);
     const [error, setError] = useState('');
 
@@ -32,8 +32,8 @@ export default function UrlForm() {
             }
 
             setResult(data);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError((err as Error).message);
         } finally {
             setLoading(false);
         }

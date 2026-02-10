@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbService } from '@/lib/db/service';
+import { IAnalytics } from '@/lib/db/types';
 import { UAParser } from 'ua-parser-js';
 
 export async function POST(req: NextRequest) {
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Get IP address
-        let ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || (req as any).ip || '127.0.0.1';
+        let ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || (req as unknown as { ip: string }).ip || '127.0.0.1';
         if (ip && ip.includes(',')) {
             ip = ip.split(',')[0].trim();
         }
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Capture precise location if provided
-        let analyticsData: any = {
+        const analyticsData: IAnalytics = {
             shortCode,
             ip,
             userAgent: userAgent || userAgentString,

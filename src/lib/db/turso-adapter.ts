@@ -28,7 +28,7 @@ export class TursoAdapter implements IDatabaseAdapter {
         // Attempt to add creatorIp column if it doesn't exist (migrations are hard in this setup, so lazy alter)
         try {
             await this.client.execute(`ALTER TABLE urls ADD COLUMN creatorIp TEXT`);
-        } catch (e) {
+        } catch {
             // Ignore error if column already exists
         }
 
@@ -56,7 +56,7 @@ export class TursoAdapter implements IDatabaseAdapter {
                 sql: `INSERT INTO urls (originalUrl, shortCode, creatorIp, ogData, createdAt, clicks) VALUES (?, ?, ?, ?, ?, ?)`,
                 args: [urlData.originalUrl, urlData.shortCode, urlData.creatorIp || null, ogDataJson, new Date().toISOString(), 0]
             });
-        } catch (e) {
+        } catch {
             // Fallback for older schema if ALTER failed (unlikely but safe)
             await this.client.execute({
                 sql: `INSERT INTO urls (originalUrl, shortCode, ogData, createdAt, clicks) VALUES (?, ?, ?, ?, ?)`,

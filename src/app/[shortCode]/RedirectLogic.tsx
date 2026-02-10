@@ -27,7 +27,7 @@ export default function RedirectLogic({ shortCode, originalUrl }: { shortCode: s
                         };
                     }
                 }
-            } catch (e) {
+            } catch {
                 // Ignore errors
             }
 
@@ -44,7 +44,7 @@ export default function RedirectLogic({ shortCode, originalUrl }: { shortCode: s
                     }),
                     keepalive: true,
                 }).catch(() => { });
-            } catch (e) {
+            } catch {
                 // Ignore
             }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2, MapPin, Globe, Clock, ExternalLink, Search, ArrowRight } from 'lucide-react';
 
 interface Log {
@@ -51,7 +51,7 @@ export default function AnalyticsPage() {
             const url = new URL(code);
             const path = url.pathname.split('/').filter(Boolean).pop();
             if (path) code = path;
-        } catch (e) {
+        } catch {
             // Not a URL, treat as code
         }
 

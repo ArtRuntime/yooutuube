@@ -29,7 +29,9 @@ const AnalyticsSchema = new mongoose.Schema({
 export class MongoAdapter implements IDatabaseAdapter {
     private uri: string;
     private connection: Connection | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private UrlModel: Model<any> | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private AnalyticsModel: Model<any> | null = null;
 
     constructor(uri: string) {

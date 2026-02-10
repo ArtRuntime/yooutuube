@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
         // Basic URL validation
         try {
             new URL(url);
-        } catch (e) {
+        } catch {
             return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 });
         }
 
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
                 if (faviconUrl && !faviconUrl.startsWith('http')) {
                     try {
                         faviconUrl = new URL(faviconUrl, url).toString();
-                    } catch (e) {
+                    } catch {
                         // Keep it as is or ignore if invalid
                     }
                 }
