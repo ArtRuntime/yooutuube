@@ -71,12 +71,22 @@ class DatabaseService implements IDatabaseAdapter {
     async saveUrl(urlData: IUrl): Promise<void> {
         if (!this.initialized) await this.connect();
 
-        // Write to ALL connected adapters for redundancy
-        const promises = this.adapters.map(adapter => adapter.saveUrl(urlData).catch(err => {
-            console.error('Failed to save URL to one adapter:', err);
-        }));
+        let saved = false;
+        // Sequential Write (Failover): Try 1st, then 2nd...
+        for (const adapter of this.adapters) {
+            try {
+                await adapter.saveUrl(urlData);
+                console.log(`URL saved to adapter.`);
+                saved = true;
+                break; // Stop after first successful save to save storage on others
+            } catch (error) {
+                console.error('Failed to save URL to adapter, trying next:', error);
+            }
+        }
 
-        await Promise.all(promises);
+        if (!saved) {
+            throw new Error('Failed to save URL to ANY connected database.');
+        }
     }
 
     async getUrl(shortCode: string): Promise<IUrl | null> {
@@ -97,7 +107,8 @@ class DatabaseService implements IDatabaseAdapter {
     async incrementClicks(shortCode: string): Promise<void> {
         if (!this.initialized) await this.connect();
 
-        // Increment on ALL adapters
+        // Increment on ALL adapters because we don't know which one has the record efficiently
+        // Use Promise.allSettled conceptual approach (catch errors individually)
         const promises = this.adapters.map(adapter => adapter.incrementClicks(shortCode).catch(err => {
             console.error('Failed to increment clicks on one adapter:', err);
         }));
@@ -108,12 +119,21 @@ class DatabaseService implements IDatabaseAdapter {
     async logAnalytics(analyticsData: IAnalytics): Promise<void> {
         if (!this.initialized) await this.connect();
 
-        // Log to ALL adapters
-        const promises = this.adapters.map(adapter => adapter.logAnalytics(analyticsData).catch(err => {
-            console.error('Failed to log analytics to one adapter:', err);
-        }));
+        let logged = false;
+        // Sequential Write for Analytics too
+        for (const adapter of this.adapters) {
+            try {
+                await adapter.logAnalytics(analyticsData);
+                logged = true;
+                break;
+            } catch (error) {
+                console.error('Failed to log analytics to adapter, trying next:', error);
+            }
+        }
 
-        await Promise.all(promises);
+        if (!logged) {
+            console.error('Failed to log analytics to ANY database.');
+        }
     }
 
     async getAnalytics(shortCode: string): Promise<IAnalytics[]> {
