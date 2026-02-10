@@ -57,7 +57,7 @@ export class NeonAdapter implements IDatabaseAdapter {
     async getUrl(shortCode: string): Promise<IUrl | null> {
         const result = await this.sql`
             SELECT * FROM urls WHERE shortCode = ${shortCode}
-        `;
+        ` as any[];
 
         if (result.length === 0) return null;
 
@@ -97,7 +97,7 @@ export class NeonAdapter implements IDatabaseAdapter {
     async getAnalytics(shortCode: string): Promise<IAnalytics[]> {
         const result = await this.sql`
             SELECT * FROM analytics WHERE shortCode = ${shortCode} ORDER BY timestamp DESC LIMIT 100
-        `;
+        ` as any[];
 
         return result.map(row => ({
             shortCode: row.shortcode,
@@ -114,7 +114,7 @@ export class NeonAdapter implements IDatabaseAdapter {
     async countLinksByIp(ip: string, since: Date): Promise<number> {
         const result = await this.sql`
             SELECT COUNT(*) as count FROM urls WHERE creatorIp = ${ip} AND createdAt >= ${since.toISOString()}
-        `;
+        ` as any[];
 
         if (result.length === 0) return 0;
         return parseInt(result[0].count);
