@@ -6,6 +6,7 @@ export interface IUrl {
         title?: string;
         description?: string;
         image?: string;
+        favicon?: string;
     };
     createdAt: Date;
     clicks: number;

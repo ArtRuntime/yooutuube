@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
             description: '',
             image: '',
             siteName: '',
+            favicon: '',
         };
 
         try {
@@ -51,11 +52,22 @@ export async function POST(req: NextRequest) {
                 }
             });
             if (result.success) {
+                // Resolve favicon URL relative to the scraped URL
+                let faviconUrl = result.favicon;
+                if (faviconUrl && !faviconUrl.startsWith('http')) {
+                    try {
+                        faviconUrl = new URL(faviconUrl, url).toString();
+                    } catch (e) {
+                        // Keep it as is or ignore if invalid
+                    }
+                }
+
                 ogData = {
                     title: result.ogTitle || '',
                     description: result.ogDescription || '',
                     image: (result.ogImage && result.ogImage.length > 0) ? result.ogImage[0].url : '',
                     siteName: result.ogSiteName || '',
+                    favicon: faviconUrl || '',
                 };
             }
         } catch (error) {

@@ -9,6 +9,7 @@ const UrlSchema = new mongoose.Schema({
         title: String,
         description: String,
         image: String,
+        favicon: String,
     },
     createdAt: { type: Date, default: Date.now },
     clicks: { type: Number, default: 0 },

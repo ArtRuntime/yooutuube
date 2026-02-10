@@ -48,6 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             images: ogData?.image ? [ogData.image] : [],
             site: '@youtube', // Hint to platforms
         },
+        icons: ogData?.favicon ? { icon: ogData.favicon } : undefined,
     };
 }
 
