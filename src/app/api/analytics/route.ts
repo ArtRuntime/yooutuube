@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Analytics from '@/models/Analytics';
+import { dbService } from '@/lib/db/service';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
     try {
-        await dbConnect();
-
         const { searchParams } = new URL(req.url);
         const code = searchParams.get('code');
 
@@ -16,10 +13,8 @@ export async function GET(req: NextRequest) {
         }
 
         // Fetch latest 100 records for the specific short code
-        const logs = await Analytics.find({ shortCode: code })
-            .sort({ timestamp: -1 })
-            .limit(100)
-            .lean();
+        // This now aggregates from ALL connected databases (Mongo + Turso)
+        const logs = await dbService.getAnalytics(code);
 
         return NextResponse.json(logs);
     } catch (error) {

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import ogs from 'open-graph-scraper';
-import dbConnect from '@/lib/db';
-import Url from '@/models/Url';
+import { dbService } from '@/lib/db/service';
 
 export async function POST(req: NextRequest) {
     try {
-        await dbConnect();
         const { url } = await req.json();
 
         if (!url) {
@@ -18,6 +16,21 @@ export async function POST(req: NextRequest) {
             new URL(url);
         } catch (e) {
             return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 });
+        }
+
+        // Rate Limiting
+        const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+            req.headers.get('x-real-ip') ||
+            '127.0.0.1';
+
+        // Check links created in the last 30 seconds
+        const thirtySecondsAgo = new Date(Date.now() - 30 * 1000);
+        const recentCount = await dbService.countLinksByIp(ip, thirtySecondsAgo);
+
+        if (recentCount >= 8) {
+            return NextResponse.json({
+                error: 'Rate limit exceeded. You can only create 8 links every 30 seconds.'
+            }, { status: 429 });
         }
 
         // Scrape Open Graph data
@@ -51,15 +64,18 @@ export async function POST(req: NextRequest) {
         }
 
         // Generate unique short code
-        // Collision check loop could be added here for absolute safety, 
-        // but nanoid(8) has a very low collision probability.
         const shortCode = nanoid(8);
 
-        const newUrl = await Url.create({
+        const newUrl = {
             originalUrl: url,
             shortCode,
+            creatorIp: ip,
             ogData,
-        });
+            createdAt: new Date(),
+            clicks: 0
+        };
+
+        await dbService.saveUrl(newUrl);
 
         return NextResponse.json({
             shortCode: newUrl.shortCode,

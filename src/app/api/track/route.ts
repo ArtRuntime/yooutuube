@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Analytics from '@/models/Analytics';
-import Url from '@/models/Url';
-
+import { dbService } from '@/lib/db/service';
 import { UAParser } from 'ua-parser-js';
 
 export async function POST(req: NextRequest) {
     try {
-        await dbConnect();
         const { shortCode, latitude, longitude } = await req.json();
 
         if (!shortCode) {
@@ -65,11 +61,11 @@ export async function POST(req: NextRequest) {
             console.log(`📍 Precise Location Captured: https://www.google.com/maps?q=${latitude},${longitude}`);
         }
 
-        // Save analytics
-        await Analytics.create(analyticsData);
+        // Save analytics via DB Service (writes to all connected DBs)
+        await dbService.logAnalytics(analyticsData);
 
-        // Update click count on Url model
-        await Url.updateOne({ shortCode }, { $inc: { clicks: 1 } });
+        // Update click count on Url (writes to all connected DBs)
+        await dbService.incrementClicks(shortCode);
 
         return NextResponse.json({ success: true });
 

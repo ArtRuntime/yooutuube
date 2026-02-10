@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import dbConnect from '@/lib/db';
-import Url from '@/models/Url';
+import { dbService } from '@/lib/db/service';
 import RedirectLogic from './RedirectLogic';
 import { Metadata } from 'next';
 
@@ -16,8 +15,7 @@ interface Props {
 }
 
 async function getUrl(shortCode: string) {
-    await dbConnect();
-    const urlParams = await Url.findOne({ shortCode }).lean();
+    const urlParams = await dbService.getUrl(shortCode);
     if (!urlParams) return null;
     return JSON.parse(JSON.stringify(urlParams)); // Serialize for client component passing if needed
 }
