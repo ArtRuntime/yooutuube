@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import UrlForm from '@/components/UrlForm';
-import { Share2, Zap, Globe, BarChart3 } from 'lucide-react';
+import { Share2, Zap, Globe, BarChart3, Github } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -12,13 +12,24 @@ export default function Home() {
 
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex mb-12">
         <div className="hidden lg:flex"></div>
-        <Link
-          href="/analytics"
-          className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/5 transition-all duration-300 backdrop-blur-sm"
-        >
-          <BarChart3 className="w-4 h-4 text-purple-400" />
-          <span>Check Analytics</span>
-        </Link>
+        <div className="flex items-center gap-4">
+          <a
+            href="https://github.com/ArtRuntime/yooutuube"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/5 transition-all duration-300 backdrop-blur-sm group"
+          >
+            <Github className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+            <span>Star on GitHub</span>
+          </a>
+          <Link
+            href="/analytics"
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/5 transition-all duration-300 backdrop-blur-sm"
+          >
+            <BarChart3 className="w-4 h-4 text-purple-400" />
+            <span>Check Analytics</span>
+          </Link>
+        </div>
       </div>
 
       <div className="relative z-10 flex flex-col items-center w-full max-w-3xl text-center mb-12">
