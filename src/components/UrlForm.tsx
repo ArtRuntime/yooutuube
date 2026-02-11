@@ -125,21 +125,23 @@ export default function UrlForm({ allowedDomains = [] }: UrlFormProps) {
                                     onClick={() => setIsDropdownOpen(false)}
                                 />
                                 <div className="absolute top-full left-0 w-full mt-2 bg-[#1a1b1e]/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
-                                    {domains.map((d) => (
-                                        <button
-                                            key={d}
-                                            type="button"
-                                            onClick={() => {
-                                                setSelectedDomain(d);
-                                                setIsDropdownOpen(false);
-                                            }}
-                                            className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-white/10 flex items-center justify-between ${selectedDomain === d ? 'text-blue-400 bg-white/5' : 'text-gray-300'
-                                                }`}
-                                        >
-                                            <span className="truncate">{d.replace(/https?:\/\//, '')}</span>
-                                            {selectedDomain === d && <Check className="w-3.5 h-3.5" />}
-                                        </button>
-                                    ))}
+                                    <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                                        {domains.map((d) => (
+                                            <button
+                                                key={d}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedDomain(d);
+                                                    setIsDropdownOpen(false);
+                                                }}
+                                                className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-white/10 flex items-center justify-between ${selectedDomain === d ? 'text-blue-400 bg-white/5' : 'text-gray-300'
+                                                    }`}
+                                            >
+                                                <span className="truncate">{d.replace(/https?:\/\//, '')}</span>
+                                                {selectedDomain === d && <Check className="w-3.5 h-3.5" />}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </>
                         )}
