@@ -126,3 +126,23 @@ The public-facing redirection route.
     - Attempt to fetch the user's geolocation.
     - Send a tracking request to `/api/track`.
     - Redirect the browser to the `originalUrl`.
+
+---
+
+## 5. Health Check
+
+Checks if the API is running and responsive.
+
+- **Endpoint**: `/api/health`
+- **Method**: `GET`
+
+### Response (Success - 200 OK)
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-02-11T12:00:00.000Z",
+  "uptime": 123.45,
+  "version": "1.0.0"
+}
+```

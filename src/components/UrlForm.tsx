@@ -48,6 +48,26 @@ export default function UrlForm({ allowedDomains = [] }: UrlFormProps) {
         setResult(null);
 
         try {
+            // 1. Verify Domain Health first
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+                const healthRes = await fetch(`${selectedDomain}/api/health`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!healthRes.ok) {
+                    throw new Error('Domain is unreachable');
+                }
+            } catch (err) {
+                console.error('Domain health check failed:', err);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                throw new Error(`Selected domain (${selectedDomain.replace('https://', '')}) is not reachable. Please select another domain.`);
+            }
+
+            // 2. Proceed with Shortening
             const res = await fetch('/api/shorten', {
                 method: 'POST',
                 headers: {
