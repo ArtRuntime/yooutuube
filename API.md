@@ -146,3 +146,23 @@ Checks if the API is running and responsive.
   "version": "1.0.0"
 }
 ```
+
+---
+
+## 6. Get Available Domains
+
+Returns a list of all configured domains available for URL shortening.
+
+- **Endpoint**: `/api/domains`
+- **Method**: `GET`
+
+### Response (Success - 200 OK)
+
+```json
+{
+  "domains": [
+    "https://yooutuube.vercel.app",
+    "https://youtube.opao.lol"
+  ]
+}
+```
