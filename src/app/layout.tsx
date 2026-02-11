@@ -13,7 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 const getBaseUrl = () => {
-  if (process.env.BASE_URL) return process.env.BASE_URL;
+  if (process.env.BASE_URL) {
+    const firstUrl = process.env.BASE_URL.split(',')[0].trim();
+    return firstUrl.startsWith('http') ? firstUrl : `https://${firstUrl}`;
+  }
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   return 'http://localhost:3000';
 };

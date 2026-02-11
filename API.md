@@ -32,6 +32,8 @@ Creates a new shortened URL with Open Graph metadata and analytics tracking enab
 }
 ```
 
+> **Note on Domains**: The `shortCode` returned is the unique identifier. You can construct the full short URL using any of your configured domains (e.g., `https://yooutuube.vercel.app/AbCd1234` or `https://youtube.opao.lol/AbCd1234`).
+
 ### Response (Error - 400/429/500)
 
 ```json

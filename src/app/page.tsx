@@ -58,7 +58,13 @@ export default function Home() {
           />
         </div>
 
-        <UrlForm />
+        <UrlForm allowedDomains={
+          (process.env.BASE_URL || '')
+            .split(',')
+            .filter(Boolean)
+            .map(d => d.trim())
+            .map(d => d.startsWith('http') ? d : `https://${d}`)
+        } />
       </div>
     </main>
   );
